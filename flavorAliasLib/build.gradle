@@ -1,0 +1,8 @@
+apply plugin: 'kotlin'
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+}

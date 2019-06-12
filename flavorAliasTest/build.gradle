@@ -1,0 +1,47 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        applicationId "com.matrixdev.flavoralias"
+        minSdkVersion 14
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    flavorDimensions 'dimention1'
+    productFlavors {
+        flavor1 {
+            dimension 'dimention1'
+        }
+        flavor2 {
+            dimension 'dimention1'
+        }
+        flavor3 {
+            dimension 'dimention1'
+        }
+    }
+}
+
+dependencies {
+    implementation project(':flavorAliasLib')
+
+    kapt project(':flavorAliasCompiler')
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    androidTestImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+}

@@ -1,0 +1,12 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:tools="http://schemas.android.com/tools"
+		package="com.matrixdev.flavoralias">
+
+	<application
+			android:allowBackup="true"
+			android:icon="@mipmap/ic_launcher"
+			android:label="flavorAlias"
+			android:roundIcon="@mipmap/ic_launcher_round"
+			android:supportsRtl="true"
+			tools:ignore="GoogleAppIndexingWarning" />
+</manifest>
