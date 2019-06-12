@@ -6,7 +6,9 @@
 
 To get flavorAlias into your build:
 
-Step 1. Add JitPack in your root build.gradle at the end of repositories:
+### Step 1
+
+Add JitPack in your root build.gradle at the end of repositories:
 
 ```groovy
 allprojects {
@@ -16,7 +18,9 @@ allprojects {
 }
 ```
 
-Step 2. Add actual flavorAlias library and compiler:
+### Step 2
+
+Add actual flavorAlias library and compiler:
 
 ```groovy
 dependencies {
@@ -26,6 +30,114 @@ dependencies {
 ```
 
 More info can be found at https://jitpack.io/#MatrixDev/flavorAlias
+
+# What does it do?
+
+For example project has following structure:
+
+```
+main
+  -> MyClass.kt
+  
+flavor1
+...
+flavorN
+```
+
+And for one and only one flavor implementation of Class1 must be different:
+
+```
+main
+  -> MyClass.kt
+  
+flavor1
+...
+flavorN
+
+flavorM
+  -> MyClass.kt (with different implementation)
+```
+
+Android build system will not allow this kind of replacement. For some or another reason only resources can be replaced with flavors.
+
+This library allows replacement (with some limitations) of any class by any number flavor (even one).
+
+# How does it work?
+
+Lets get back to previous example.
+
+### Step 1
+
+Rename main/MyClass.kt -> main/MyClassMain.kt
+
+Final name doesn't matter but it must be unique between flavors.
+
+### Step 2
+
+Rename flavorM/MyClass.kt -> flavorM/MyClassFlavorM.kt
+
+Final name doesn't matter but it must be unique between flavors.
+
+### Step 3
+
+Add **@GenerateTypeAlias** annotation to **main/MyClassMain.kt**:
+
+```kotlin
+@GenerateTypeAlias("MyClass", priority = 1)
+open class MyClassMain {
+}
+```
+
+This annotation takes two arguments:
+1. name - name of original class
+2. priority - annotation processor will select final class based on priority (higher wins)
+
+### Step 4
+
+Add **@GenerateTypeAlias** annotation to **flavorM/MyClassFlavorM.kt**:
+
+```kotlin
+@GenerateTypeAlias("MyClass", priority = 2)
+class MyClassFlavorM : MyClassMain() {
+}
+```
+
+Only difference from previous step is in **priority** argument.
+
+### Step 5
+
+Thats it, there is no step 5 :)
+
+At this time library will generate alias with name **MyClass** which will point to annotated class with highest priority.
+
+When **flavorM** is selected alias will point to **MyClassFlavorM**:
+
+```kotlin
+typealias MyClass = MyClassFlavorM
+```
+
+And for all other flavors it will point to **MyClassMain**:
+
+```kotlin
+typealias MyClass = MyClassMain
+```
+
+Project structure should look like this:
+
+```
+main
+  -> MyClassMain.kt
+  
+flavor1
+...
+flavorN
+
+flavorM
+  -> MyClassFlavorM.kt
+
+generated
+  -> MyClass.kt
+```
 
 # License
 
