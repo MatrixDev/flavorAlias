@@ -2,15 +2,98 @@
 
 [![Release](https://jitpack.io/v/MatrixDev/flavorAlias.svg)](https://jitpack.io/#MatrixDev/flavorAlias)
 
-# Add to your project
+# Overview
 
-To get flavorAlias into your build:
+Normally when working with multiple flavors and only one of those needs different implementation, you'd have to copy same implementation to each other flavor. For example if you had 100 flavors and some class had different befavior for one of those, you'd still need 100 copies of that class in each flavor with only one beeing different.
+
+This is caused by gradle's limitation which forbids class files replacement through flavors (yet you still can replace other resources).
+
+There are few possible ways to overcome this limitation:
+- move all affected classes from `main` to `flavor` folder - leads to tons of duplicated code
+- use reflections to dynamically load classes from flavors - proguard will see those as unused which requires adding rules
+- use code generation to switch classes in compile time
+
+This library uses later solution to generate Kotlin aliases when needed.
+
+# Example
+
+Lets assume that we have 3 flavors and `MyObject` class which we need to have different implementation only for flavor3.
 
 ### Step 1
 
-Add JitPack in your root build.gradle at the end of repositories:
+Create base `MyObject` implementation in `main` flavor:
 
-```groovy
+```kotlin
+@GenerateTypeAlias("MyObject", priority = 1)
+open class MyObjectMain {
+    open fun doSomething() {}
+}
+```
+
+Actual class name must be unique for each flavor and also must be different from alias name.
+
+`@GenerateTypeAlias` is the only annotation provided by the library and it takes only two arguments:
+1. name - this will be name of generated alias
+2. priority - class annotated with highest available priority wins and will be aliased
+
+### Step 2
+
+Create base `MyObject` implementation in `flavor3` flavor:
+
+```kotlin
+@GenerateTypeAlias("MyObject", priority = 2)
+class MyObjectFlavor3 : MyObjectMain() {
+    override fun doSomething() {}
+}
+```
+
+`MyObjectFlavor3` extends `MyObjectMain` just to keep some consistency. There is no actual requirement to do this.
+
+### Step 3
+
+Thats it, there is no step 3 :)
+
+At this time library will generate alias with name `MyObject` which can be used everywhere in the code:
+
+```kotlin
+val myObject = MyObject()
+myObject.doSomething()
+```
+
+Alias will point to `MyObjectFlavor3` when building project with `flavor3`:
+
+```kotlin
+typealias MyObject = MyObjectFlavor3
+```
+
+And for all other build variants it will point to `MyObjectMain`:
+
+```kotlin
+typealias MyObject = MyObjectMain
+```
+
+Project structure should look something like this:
+
+```
+main
+  -> MyObjectMain.kt
+  
+flavorM
+  -> MyObjectFlavorM.kt
+
+generated
+  -> MyObject.kt
+```
+
+# How to add dependencies?
+
+To use this library in your project just add following lines:
+
+### Step 1
+
+Add JitPack repository in your root `build.gradle` file:
+
+```gradle
 allprojects {
     repositories {
         maven { url 'https://jitpack.io' }
@@ -20,124 +103,17 @@ allprojects {
 
 ### Step 2
 
-Add actual flavorAlias library and compiler:
+Add actual library and compiler dependencies:
 
-```groovy
+```gradle
 dependencies {
     implementation 'com.github.MatrixDev.flavorAlias:flavorAliasLib:1.0'
+    
     kapt 'com.github.MatrixDev.flavorAlias:flavorAliasCompiler:1.0'
 }
 ```
 
 More info can be found at https://jitpack.io/#MatrixDev/flavorAlias
-
-# What does it do?
-
-For example project has following structure:
-
-```
-main
-  -> MyClass.kt
-  
-flavor1
-...
-flavorN
-```
-
-And for one and only one flavor implementation of Class1 must be different:
-
-```
-main
-  -> MyClass.kt
-  
-flavor1
-...
-flavorN
-
-flavorM
-  -> MyClass.kt (with different implementation)
-```
-
-Android build system will not allow this kind of replacement. For some or another reason only resources can be replaced with flavors.
-
-This library allows replacement (with some limitations) of any class by any number flavor (even one).
-
-# How does it work?
-
-Lets get back to previous example.
-
-### Step 1
-
-Rename main/MyClass.kt -> main/MyClassMain.kt
-
-Final name doesn't matter but it must be unique between flavors.
-
-### Step 2
-
-Rename flavorM/MyClass.kt -> flavorM/MyClassFlavorM.kt
-
-Final name doesn't matter but it must be unique between flavors.
-
-### Step 3
-
-Add **@GenerateTypeAlias** annotation to **main/MyClassMain.kt**:
-
-```kotlin
-@GenerateTypeAlias("MyClass", priority = 1)
-open class MyClassMain {
-}
-```
-
-This annotation takes two arguments:
-1. name - name of original class
-2. priority - annotation processor will select final class based on priority (higher wins)
-
-### Step 4
-
-Add **@GenerateTypeAlias** annotation to **flavorM/MyClassFlavorM.kt**:
-
-```kotlin
-@GenerateTypeAlias("MyClass", priority = 2)
-class MyClassFlavorM : MyClassMain() {
-}
-```
-
-Only difference from previous step is in **priority** argument.
-
-### Step 5
-
-Thats it, there is no step 5 :)
-
-At this time library will generate alias with name **MyClass** which will point to annotated class with highest priority.
-
-When **flavorM** is selected alias will point to **MyClassFlavorM**:
-
-```kotlin
-typealias MyClass = MyClassFlavorM
-```
-
-And for all other flavors it will point to **MyClassMain**:
-
-```kotlin
-typealias MyClass = MyClassMain
-```
-
-Project structure should look like this:
-
-```
-main
-  -> MyClassMain.kt
-  
-flavor1
-...
-flavorN
-
-flavorM
-  -> MyClassFlavorM.kt
-
-generated
-  -> MyClass.kt
-```
 
 # License
 
