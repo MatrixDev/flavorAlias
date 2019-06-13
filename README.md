@@ -33,8 +33,8 @@ open class MyObjectMain {
 Actual class name must be unique for each flavor and also must be different from alias name.
 
 `@GenerateTypeAlias` is the only annotation provided by the library and it takes only two arguments:
-1. name - this will be name of generated alias
-2. priority - class annotated with highest available priority wins and will be aliased
+1. name - this will be the name of the generated alias
+2. priority - class annotated with the highest available priority wins and will be aliased
 
 ### Step 2
 
@@ -60,7 +60,7 @@ val myObject = MyObject()
 myObject.doSomething()
 ```
 
-Alias will point to `MyObjectFlavor3` when building project with `flavor3`:
+Alias will be pointing to `MyObjectFlavor3` when building project with `flavor3` variant:
 
 ```kotlin
 typealias MyObject = MyObjectFlavor3
