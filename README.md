@@ -4,14 +4,14 @@
 
 # Overview
 
-Normally when working with multiple flavors and only one of those needs different implementation, you'd have to copy same implementation to each other flavor. For example if you had 100 flavors and some class had different befavior for one of those, you'd still need 100 copies of that class in each flavor with only one beeing different.
+Normally when working with multiple flavors and only one of those needs different implementation, you'd have to copy same implementation to each other flavor. For example if you had 100 flavors and some class had different behavior for one of those, you'd still need 100 copies of that class in each flavor with only one beeing different.
 
 This is caused by gradle's limitation which forbids class files replacement through flavors (yet you still can replace other resources).
 
 There are few possible ways to overcome this limitation:
 - move all affected classes from `main` to `flavor` folder - leads to tons of duplicated code
-- use reflections to dynamically load classes from flavors - proguard will see those as unused which requires adding rules
-- use code generation to switch classes in compile time
+- use reflections to dynamically load classes from flavors - proguard will see those as unused which requires additional rules
+- use code generation to switch classes at compile time
 
 This library uses later solution to generate Kotlin aliases when needed.
 
