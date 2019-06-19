@@ -16,6 +16,8 @@ There are few possible ways to overcome this limitation:
 
 This library uses later solution to generate Kotlin aliases when needed.
 
+> [flavorSuperClass](https://github.com/MatrixDev/flavorSuperClass) library can be used for pure Java projects but it has some limitations.
+
 # Example
 
 Lets assume that we have 3 flavors and `MyObject` class which we need to have different implementation only for flavor3.
