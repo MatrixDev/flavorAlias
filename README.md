@@ -110,9 +110,9 @@ Add actual library and compiler dependencies:
 
 ```gradle
 dependencies {
-    implementation 'com.github.MatrixDev.flavorAlias:flavorAliasLib:1.0'
+    implementation 'com.github.MatrixDev.flavorAlias:flavorAliasLib:1.0.0'
     
-    kapt 'com.github.MatrixDev.flavorAlias:flavorAliasCompiler:1.0'
+    kapt 'com.github.MatrixDev.flavorAlias:flavorAliasCompiler:1.0.0'
 }
 ```
 
